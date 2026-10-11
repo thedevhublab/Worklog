@@ -2,6 +2,8 @@
 
 순수 HTML, CSS, JavaScript로 만든 한국어·영어 지원 업무일지입니다. 매일의 업무를 기록하고, 분류로 정리하고, 월별·날짜별·키워드별로 찾아볼 수 있습니다.
 
+[Worklog 열기](https://thedevhublab.github.io/Worklog/)
+
 [🇰🇷 한국어](README_KR.md) · [🇺🇸 English](README.md)
 
 ## 주요 기능

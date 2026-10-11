@@ -2,6 +2,8 @@
 
 A lightweight, bilingual work journal built with plain HTML, CSS, and JavaScript. Record daily work, organize it with categories, and find entries by month, date, or keyword.
 
+[Open Worklog](https://thedevhublab.github.io/Worklog/)
+
 [🇰🇷 한국어 안내](README_KR.md) · [🇺🇸 English](README.md)
 
 ## Features
