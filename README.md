@@ -1,51 +1,81 @@
 # Worklog
 
-A lightweight, bilingual work journal built with plain HTML, CSS, and JavaScript. Record daily work, organize it with categories, and find entries by month, date, or keyword.
+A lightweight bilingual work journal built with HTML, CSS, and vanilla JavaScript. Record daily work, organize it with categories, and review entries by month, category, or keyword.
 
-[Open Worklog](https://thedevhublab.github.io/Worklog/)
+## Live app
 
-[🇰🇷 한국어 안내](README_KR.md) · [🇺🇸 English](README.md)
+[Open Worklog](https://thedevhublab.github.io/Worklog/) · [한국어 안내](README_KR.md)
 
 ## Features
 
-- **Daily work entries** — Create, edit, and delete entries with a date, title, details, category, and time spent. Titles are required (up to 80 characters); details support up to 3,000 characters. Time is entered in half-hour increments, from 0 to 24 hours.
-- **Monthly dashboard** — See the number of entries this month, all-time entries, and distinct days with entries.
-- **Calendar and month navigation** — Browse entries by month using a localized month picker. Month names, year labels, dates, and calendar controls follow the selected language.
-- **Flexible browsing** — Filter by month and category, search titles, details, and category names, and sort by newest, oldest, or title (A–Z).
-- **Custom categories** — Add, rename, and remove categories. Each custom category has a Korean and an English label so it displays correctly when switching languages. The built-in categories are Planning, Meetings, Development, Design, Operations, and Other (with Korean labels in the Korean interface). Removing a category keeps its entries and reassigns them to Other when available.
-- **Korean and English interface** — Switch languages from the interface. The preference is remembered in this browser. Built-in category labels and interface text are localized; custom category translations are entered and maintained by the user. No automatic translation service is used.
-- **JSON backup and restore** — Export categories and entries to a JSON file. Import a backup to merge its data with the current browser data; matching entry IDs are replaced by the imported versions.
-- **Responsive layout** — The journal adapts to smaller screens; the entry form moves into a mobile-friendly panel.
+- **Daily entries:** Create, edit, and delete records with a date, title, details, category, and optional time spent. Titles are required and limited to 80 characters; details support up to 3,000 characters. Time accepts 0–24 hours in half-hour increments.
+- **Monthly dashboard:** See this month's entry count, all-time entries, and the number of distinct days with records. The dashboard's current-month total is separate from the month selected for browsing.
+- **Localized calendars:** Select a month or a date with Worklog's custom calendar controls. Month names, weekdays, labels, and year navigation follow the selected interface language.
+- **Search, filters, and sorting:** Filter by month and category; search titles, details, and category names; sort by newest, oldest, or title.
+- **Custom bilingual categories:** Add, rename, and delete categories. Enter the Korean and English names yourself; Worklog does not use an automatic translation API. Deleting a category preserves its entries and reassigns them to another category. At least one category must remain.
+- **Korean and English interface:** Switch languages from the header. The preference is saved in this browser, and current search, category, and month selections remain in place.
+- **JSON backup and restore:** Export entries, categories, and translations. Import validates the whole file before asking to merge it. Matching entry IDs are replaced; entries without IDs receive new IDs. Current version 1 backups and legacy array-style entry backups are supported.
+- **Responsive and accessible UI:** Layout adapts to mobile and desktop. Inputs have labels, errors are announced beside fields, focus is visible, and dialogs support keyboard navigation and Escape to close.
+- **Reduced motion:** Respects the device's reduced-motion preference.
 
 ## Getting started
 
-Open `index.html` in a modern browser. No package installation or build step is required.
+Open the index.html file in a modern browser. No package installation, build step, account, or server is required for local use.
 
-1. Add an entry with its date, title, and any optional details, category, and time spent.
-2. Use the month picker, category filter, search, or sort menu to find entries.
-3. Manage bilingual category names in category management.
-4. Use **Export JSON** periodically to keep a backup. Import a JSON backup to restore or merge saved data.
+1. Enter a date, a title, and any optional details, category, and time.
+2. Browse with the month picker, category filter, search, and sort menu.
+3. Add both Korean and English labels when creating a custom category.
+4. Export a JSON backup regularly. Import a backup to merge its contents with the current browser data.
 
 ## Data and privacy
 
-Worklog has no server-side database or account sync. Entries, categories, category labels, and the language preference are saved in the browser's `localStorage` on the device and browser where you use the app. Clearing browser site data can erase them, so export a backup before clearing it. Data does not automatically move between browsers or devices.
+Worklog is a static client-side app. Entries, categories, category translations, and language preference are stored in the current browser's localStorage. There is no account, server database, or automatic cross-device sync. Clearing browser data can remove records; use JSON export to keep a separate backup.
 
-The app does not call a translation API. It requests DM Sans and Noto Sans KR font files from Google Fonts when available and uses local fallback fonts otherwise.
+The app does not send journal data to a translation service. DM Sans and Noto Sans KR are requested from Google Fonts when available; system fonts are used as fallbacks.
 
-## Project files
+## Project structure
 
-```text
-outputs/
-├── index.html      # App structure
-├── style.css       # Layout, styling, and responsive rules
-├── script.js       # Entries, filtering, localization, storage, and JSON backup
-├── README.md       # English documentation
-└── README_KR.md    # Korean documentation
-```
+<pre>
+Worklog/
+├── index.html       App structure
+├── style.css        Design system, layout, and responsive styles
+├── script.js        Records, validation, localization, storage, and backups
+├── README.md        English documentation
+├── README_KR.md     Korean documentation
+├── LICENSE          MIT License
+└── tests/
+    └── validation.test.cjs  Data and backup validation tests
+</pre>
 
-## Built with
+## Technology
 
 - HTML
 - CSS
 - Vanilla JavaScript
-- Browser `localStorage` for local persistence
+- Browser localStorage
+- GitHub Pages static hosting
+
+## Tests
+
+The browser app has no runtime dependencies. To run the data validation tests, use Node.js:
+
+<pre>
+node tests/validation.test.cjs
+</pre>
+
+## Known limitations
+
+- Data belongs to the browser and device where it was entered. It does not sync between devices or browsers.
+- Browser storage can be cleared and may have limited capacity. Keep JSON backups.
+- The Google Fonts connection is optional; the app remains usable if it is unavailable.
+- Offline installation as a PWA is not included yet.
+
+## Possible next improvements
+
+- Add an actual, up-to-date app screenshot to this README.
+- Consider an installable offline PWA while preserving local-first storage.
+- Add more interface languages and user-controlled export options.
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE).
