@@ -15,7 +15,7 @@
     koreanCategoryName:'한국어 분류명', englishCategoryName:'영어 분류명',
     categoryDeleteNote:'분류를 삭제해도 업무 기록은 보존되며 다른 분류로 이동합니다.',
     allCategories:'전체 분류', newest:'최신순', oldest:'오래된순', titleAZ:'제목순', entriesUnit:'건', daysUnit:'일', hoursUnit:'시간',
-    status:'상태', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel (기록 삭제)', cancelStatusHint:'Cancel로 저장하면 이 기록이 삭제됩니다.', cancelStatusConfirm:'Cancel 상태로 저장하면 이 업무 기록이 영구 삭제됩니다. 계속할까요?', statusDeleted:'Cancel 상태로 설정해 기록을 삭제했어요.', cancelNewEntry:'Cancel 상태에서는 새 기록을 만들지 않았어요.', newDayPrompt:'날짜가 바뀌었어요. 오늘 날짜로 새 업무 기록을 작성할까요?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete',
+    status:'Status', statusMenu:'Status', allStatuses:'전체 기록', allMonths:'전체 기간', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel', cancelStatusHint:'Cancel 상태도 기록에 저장되어 상태 메뉴에서 확인할 수 있습니다.', statusUpdated:'작업 상태를 변경했어요.', newDayPrompt:'날짜가 바뀌었어요. 오늘 날짜로 새 업무 기록을 작성할까요?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete', statusCancelLabel:'Cancel',
     edit:'수정', delete:'삭제', rename:'이름 저장', noCategories:'등록된 분류가 없습니다. 분류를 추가해보세요.',
     noEntries:'아직 기록이 없어요', noEntriesHint:'오늘 한 일을 첫 업무 기록으로 남겨보세요.',
     noMonthEntries:'이 달에는 기록이 없어요', noMonthHint:'다른 달을 선택하거나 새 기록을 추가해보세요.',
@@ -49,7 +49,7 @@
     koreanCategoryName:'Korean category name', englishCategoryName:'English category name',
     categoryDeleteNote:'Deleting a category keeps its entries and moves them to another category.',
     allCategories:'All categories', newest:'Newest first', oldest:'Oldest first', titleAZ:'Title A–Z',
-    status:'Status', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel (delete entry)', cancelStatusHint:'Saving as Cancel permanently deletes this entry.', cancelStatusConfirm:'Saving as Cancel permanently deletes this work entry. Continue?', statusDeleted:'Entry deleted after setting status to Cancel.', cancelNewEntry:'No entry was created because its status was Cancel.', newDayPrompt:'A new day has started. Would you like to create a work entry for today?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete',
+    status:'Status', statusMenu:'Status', allStatuses:'All entries', allMonths:'All time', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel', cancelStatusHint:'Cancelled entries stay saved and are available in the Cancel status view.', statusUpdated:'Work status updated.', newDayPrompt:'A new day has started. Would you like to create a work entry for today?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete', statusCancelLabel:'Cancel',
     entriesUnit:'entries', daysUnit:'days', hoursUnit:'hours', edit:'Edit', delete:'Delete', rename:'Save names',
     noCategories:'No categories yet. Add one to get started.', noEntries:'No entries yet',
     noEntriesHint:'Add your first work entry for today.', noMonthEntries:'No entries for this month',
@@ -71,7 +71,7 @@
     nextYear:'Next year', englishMissing:'English name not set', selectDate:'Choose a date', selected:'Selected'
   };
   const $ = id => document.getElementById(id);
-  const state = { entries:[], categories:[...DEFAULTS], translations:{}, language:'ko', storageProblem:false, pickerYear:new Date().getFullYear(), calendarDate:new Date(), snapshot:null, focus:null, saving:false };
+  const state = { entries:[], categories:[...DEFAULTS], translations:{}, language:'ko', selectedStatus:'all', storageProblem:false, pickerYear:new Date().getFullYear(), calendarDate:new Date(), snapshot:null, focus:null, saving:false };
   const dict = () => state.language === 'ko' ? KO : EN;
   const t = key => dict()[key] || key;
   const locale = () => state.language === 'ko' ? 'ko-KR' : 'en-US';
@@ -96,7 +96,7 @@
     for(const row of list){
       if(!row||typeof row!=='object'||Array.isArray(row))return null;
       const title=typeof row.title==='string'?row.title.trim():'',content=row.content==null?'':row.content,category=row.category==null?'':row.category,hours=normalizeHours(row.hours),status=row.status==null?'create':row.status;
-      if(!validDate(row.date)||!title||title.length>80||typeof content!=='string'||content.length>3000||typeof category!=='string'||category.length>64||hours===null||!['create','inProgress','complete'].includes(status))return null;
+      if(!validDate(row.date)||!title||title.length>80||typeof content!=='string'||content.length>3000||typeof category!=='string'||category.length>64||hours===null||!['create','inProgress','complete','cancel'].includes(status))return null;
       let id=row.id==null?'':String(row.id);
       if(id.length>160||(id&&ids.has(id)))return null;
       if(!id){do{id=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'?globalThis.crypto.randomUUID():'worklog-'+Date.now()+'-'+Math.random().toString(36).slice(2);}while(ids.has(id));}
@@ -189,7 +189,7 @@
     }).join('');
   };
   const closeCalendar=restore=>{$('datePopup').hidden=true;$('dateTrigger').setAttribute('aria-expanded','false');if(restore)$('dateTrigger').focus();};
-  const updateMonth=()=>{const value=$('monthFilter').value;if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(value))return;$('monthTrigger').textContent=monthText(value);state.pickerYear=Number(value.slice(0,4));renderMonthGrid();};
+  const updateMonth=()=>{const value=$('monthFilter').value;if(!value){$('monthTrigger').textContent=t('allMonths');state.pickerYear=today.getFullYear();renderMonthGrid();return;}if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(value))return;$('monthTrigger').textContent=monthText(value);state.pickerYear=Number(value.slice(0,4));renderMonthGrid();};
   const renderCategoryList=()=>{
     $('categoryList').innerHTML=state.categories.length?state.categories.map((name,i)=>{
       const english=state.translations[name]||BUILTIN[name]||'',labelKo=(state.language==='ko'?'한국어 이름: ':'Korean name: ')+name,labelEn=(state.language==='ko'?'영어 이름: ':'English name: ')+(english||t('englishMissing'));
@@ -197,9 +197,15 @@
     }).join(''):'<div class="category-empty">'+esc(t('noCategories'))+'</div>';
   };
   const renderEmpty=filtered=>{const hasAny=state.entries.length>0,title=filtered?t('noResults'):hasAny?t('noMonthEntries'):t('noEntries'),hint=filtered?t('noResultsHint'):hasAny?t('noMonthHint'):t('noEntriesHint');$('entries').innerHTML='<div class="empty"><div class="emoji" aria-hidden="true">'+(filtered?'🔎':'📝')+'</div><strong>'+esc(title)+'</strong><p>'+esc(hint)+'</p></div>';};
+  const renderStatusMenu=()=>{
+    const counts={all:state.entries.length,create:0,inProgress:0,complete:0,cancel:0};
+    state.entries.forEach(row=>{counts[row.status]=(counts[row.status]||0)+1;});
+    document.querySelectorAll('[data-status-count]').forEach(element=>{element.textContent=String(counts[element.dataset.statusCount]||0);});
+    document.querySelectorAll('[data-status-view]').forEach(button=>{const active=button.dataset.statusView===state.selectedStatus;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false');});
+  };
   const render=()=>{
-    renderCategories();const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),needle=query.toLocaleLowerCase(locale());
-    const shown=state.entries.filter(row=>row.date.startsWith(month)&&(!category||row.category===category)&&(!needle||(row.title+' '+row.content+' '+row.category+' '+categoryLabel(row.category)).toLocaleLowerCase(locale()).includes(needle)));
+    renderStatusMenu();renderCategories();const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),needle=query.toLocaleLowerCase(locale());
+    const shown=state.entries.filter(row=>(!month||row.date.startsWith(month))&&(state.selectedStatus==='all'||row.status===state.selectedStatus)&&(!category||row.category===category)&&(!needle||(row.title+' '+row.content+' '+row.category+' '+categoryLabel(row.category)).toLocaleLowerCase(locale()).includes(needle)));
     const collator=new Intl.Collator(state.language==='ko'?'ko':'en',{sensitivity:'base',numeric:true});
     shown.sort((a,b)=>$('sortFilter').value==='old'?a.date.localeCompare(b.date)||a.created-b.created:$('sortFilter').value==='title'?collator.compare(a.title,b.title)||b.date.localeCompare(a.date):b.date.localeCompare(a.date)||b.created-a.created);
     $('resultCount').textContent=shown.length+' '+countEntries(shown.length);
@@ -208,12 +214,13 @@
     $('allCount').innerHTML=state.entries.length+'<small>'+esc(countEntries(state.entries.length))+'</small>';
     const dayCount=new Set(state.entries.map(row=>row.date)).size;$('dayCount').innerHTML=dayCount+'<small>'+esc(countDays(dayCount))+'</small>';
     document.querySelector('[data-i18n="currentMonthEntries"]').textContent=t('currentMonthEntries')+' · '+monthText(localDate(today).slice(0,7));
-    const summary=[monthText(month)];if(category)summary.push(categoryLabel(category));if(query)summary.push('“'+query+'”');if(category||query)summary.push(state.language==='ko'?shown.length+'건':shown.length+(shown.length===1?' entry':' entries'));
-    $('filterSummary').textContent=state.storageProblem?t('storageUnreadable'):((category||query)?summary.join(' · '):'');$('filterSummary').classList.toggle('warning-text',state.storageProblem);
-    if(!shown.length){renderEmpty(Boolean(category||query));return;}
+    const summary=[month?monthText(month):t('allMonths')];if(state.selectedStatus!=='all')summary.push(t('status'+(state.selectedStatus==='inProgress'?'InProgress':state.selectedStatus==='complete'?'Complete':state.selectedStatus==='cancel'?'Cancel':'Create')));if(category)summary.push(categoryLabel(category));if(query)summary.push('“'+query+'”');
+    $('filterSummary').textContent=state.storageProblem?t('storageUnreadable'):((category||query||state.selectedStatus!=='all'||!month)?summary.join(' · '):'');$('filterSummary').classList.toggle('warning-text',state.storageProblem);
+    if(!shown.length){renderEmpty(Boolean(category||query||state.selectedStatus!=='all'));return;}
     $('entries').innerHTML=shown.map(row=>{
       const p=row.date.split('-'),day=Number(p[2]),d=new Date(Number(p[0]),Number(p[1])-1,day);
-      return '<article class="entry"><div class="daybox"><b>'+day+'</b><span>'+esc(d.toLocaleDateString(locale(),{month:'short'}))+' · '+esc(d.toLocaleDateString(locale(),{weekday:'short'}))+'</span></div><div class="entry-main"><h3>'+esc(row.title)+'</h3><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><span class="status-badge status-'+esc(row.status)+'">'+esc(t('status'+(row.status==='inProgress'?'InProgress':row.status==='complete'?'Complete':'Create')+'Label'))+'</span><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+(row.hours!==''?'<span class="time">'+esc(row.hours)+' '+esc(t('hoursUnit'))+'</span>':'')+'<time class="time" datetime="'+esc(row.date)+'">'+esc(dateText(row.date))+'</time></div></div><div class="entry-actions"><button class="iconbtn" type="button" data-edit="'+esc(row.id)+'" aria-label="'+esc(t('edit')+' '+row.title)+'">'+esc(t('edit'))+'</button><button class="iconbtn delete" type="button" data-delete="'+esc(row.id)+'" aria-label="'+esc(t('delete')+' '+row.title)+'">'+esc(t('delete'))+'</button></div></article>';
+      const statusOptions=[['create','statusCreate'],['inProgress','statusInProgress'],['complete','statusComplete'],['cancel','statusCancel']].map(([value,key])=>'<option value="'+value+'"'+(row.status===value?' selected':'')+'>'+esc(t(key))+'</option>').join('');
+      return '<article class="entry"><div class="daybox"><b>'+day+'</b><span>'+esc(d.toLocaleDateString(locale(),{month:'short'}))+' · '+esc(d.toLocaleDateString(locale(),{weekday:'short'}))+'</span></div><div class="entry-main"><h3>'+esc(row.title)+'</h3><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><label class="visually-hidden" for="status-'+esc(row.id)+'">'+esc(t('status')+': '+row.title)+'</label><select class="status-select status-'+esc(row.status)+'" id="status-'+esc(row.id)+'" data-entry-status="'+esc(row.id)+'">'+statusOptions+'</select><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+(row.hours!==''?'<span class="time">'+esc(row.hours)+' '+esc(t('hoursUnit'))+'</span>':'')+'<time class="time" datetime="'+esc(row.date)+'">'+esc(dateText(row.date))+'</time></div></div><div class="entry-actions"><button class="iconbtn" type="button" data-edit="'+esc(row.id)+'" aria-label="'+esc(t('edit')+' '+row.title)+'">'+esc(t('edit'))+'</button><button class="iconbtn delete" type="button" data-delete="'+esc(row.id)+'" aria-label="'+esc(t('delete')+' '+row.title)+'">'+esc(t('delete'))+'</button></div></article>';
     }).join('');
   };
   const formError=(field,error,message)=>{$(field).setAttribute('aria-invalid','true');$(error).textContent=message;};
@@ -244,12 +251,6 @@
   const saveForm=event=>{
     event.preventDefault();if(state.saving)return;const value=validateForm();if(!value)return;if(state.storageProblem){toast(t('storageUnreadable'));return;}
     const id=$('editId').value,old=state.entries.find(row=>row.id===id),status=$('entryStatus').value;
-    if(status==='cancel'){
-      if(!old){closeForm(true);toast(t('cancelNewEntry'));return;}
-      if(!confirm(t('cancelStatusConfirm')))return;
-      try{persist({entries:state.entries.filter(row=>row.id!==old.id),categories:[...state.categories],translations:{...state.translations}});render();closeForm(true);toast(t('statusDeleted'));}catch{toast(t('saveFailed'));}
-      return;
-    }
     let newId='';
     if(!id){do{newId=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'?globalThis.crypto.randomUUID():'entry-'+Date.now()+'-'+Math.random().toString(36).slice(2);}while(state.entries.some(row=>row.id===newId));}
     const entry={id:id||newId,date:value.date,title:value.title,content:value.content,category:$('entryCategory').value||state.categories[0]||'기타',hours:value.hours,status,created:old?old.created:Date.now()};
@@ -357,6 +358,12 @@
     if(del){const row=state.entries.find(item=>item.id===del.dataset.delete);if(!row||!confirm(state.language==='ko'?'“'+row.title+'” 기록을 삭제할까요?':'Delete “'+row.title+'”?'))return;
       try{persist({entries:state.entries.filter(item=>item.id!==row.id),categories:[...state.categories],translations:{...state.translations}});render();toast(t('entryDeleted'));}catch{toast(t('saveFailed'));}}
   });
+  $('entries').addEventListener('change',event=>{
+    const select=event.target.closest('[data-entry-status]');if(!select)return;
+    const row=state.entries.find(item=>item.id===select.dataset.entryStatus);if(!row)return;
+    try{persist({entries:state.entries.map(item=>item.id===row.id?{...item,status:select.value}:item),categories:[...state.categories],translations:{...state.translations}});render();toast(t('statusUpdated'));}catch{select.value=row.status;toast(t('saveFailed'));}
+  });
+  $('statusMenu').addEventListener('click',event=>{const button=event.target.closest('[data-status-view]');if(!button)return;state.selectedStatus=button.dataset.statusView;$('monthFilter').value='';updateMonth();render();});
   $('manageCategoriesBtn').addEventListener('click',openCategory);$('closeCategoryModal').addEventListener('click',()=>closeCategory(true));
   $('categoryModal').addEventListener('click',event=>{if(event.target===$('categoryModal'))closeCategory(true);});
   $('categoryForm').addEventListener('submit',addCategory);
