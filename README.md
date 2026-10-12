@@ -9,6 +9,8 @@ A lightweight bilingual work journal built with HTML, CSS, and vanilla JavaScrip
 ## Features
 
 - **Daily entries:** Create, edit, and delete records with a date, title, details, category, and optional time spent. Titles are required and limited to 80 characters; details support up to 3,000 characters. Time accepts 0–24 hours in half-hour increments.
+- **Work status:** Mark entries as `Create`, `In Progress`, or `Complete`. Saving an entry as `Cancel` asks for confirmation and then deletes it. Older backups without a status default to `Create`.
+- **New-day prompt:** After the date changes, on the next visit or while the app remains open, Worklog asks whether to start an entry for today. Confirming opens a new entry with today's date; previous entries stay saved under their dates.
 - **Monthly dashboard:** See this month's entry count, all-time entries, and the number of distinct days with records. The dashboard's current-month total is separate from the month selected for browsing.
 - **Localized calendars:** Select a month or a date with Worklog's custom calendar controls. Month names, weekdays, labels, and year navigation follow the selected interface language.
 - **Search, filters, and sorting:** Filter by month and category; search titles, details, and category names; sort by newest, oldest, or title.

@@ -120,6 +120,16 @@
                 <small class="field-error" id="titleError" aria-live="polite"></small>
               </div>
               <div class="form-group">
+                <label for="entryStatus" data-i18n="status">상태</label>
+                <select id="entryStatus" class="field">
+                  <option value="create" data-i18n="statusCreate">Create</option>
+                  <option value="inProgress" data-i18n="statusInProgress">In Progress</option>
+                  <option value="complete" data-i18n="statusComplete">Complete</option>
+                  <option value="cancel" data-i18n="statusCancel">Cancel (기록 삭제)</option>
+                </select>
+                <small class="field-hint" data-i18n="cancelStatusHint">Cancel로 저장하면 이 기록이 삭제됩니다.</small>
+              </div>
+              <div class="form-group">
                 <label for="entryContent" data-i18n="details">업무 내용</label>
                 <textarea id="entryContent" maxlength="3000" data-i18n-placeholder="detailsPlaceholder" placeholder="오늘 진행한 업무와 결과를 기록해보세요." aria-describedby="contentHint"></textarea>
                 <small class="field-hint" id="contentHint" data-i18n="detailsLimit">최대 3,000자</small>

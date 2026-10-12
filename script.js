@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const KEYS = { entries: 'harugirok.entries.v1', categories: 'harugirok.categories.v1', translations: 'harugirok.categoryTranslations.v1', language: 'harugirok.language' };
+  const KEYS = { entries: 'harugirok.entries.v1', categories: 'harugirok.categories.v1', translations: 'harugirok.categoryTranslations.v1', language: 'harugirok.language', activeDate: 'harugirok.activeDate' };
   const DEFAULTS = ['기획', '회의', '개발', '디자인', '운영', '기타'];
   const BUILTIN = { '기획':'Planning', '회의':'Meetings', '개발':'Development', '디자인':'Design', '운영':'Operations', '기타':'Other' };
   const KO = {
@@ -15,6 +15,7 @@
     koreanCategoryName:'한국어 분류명', englishCategoryName:'영어 분류명',
     categoryDeleteNote:'분류를 삭제해도 업무 기록은 보존되며 다른 분류로 이동합니다.',
     allCategories:'전체 분류', newest:'최신순', oldest:'오래된순', titleAZ:'제목순', entriesUnit:'건', daysUnit:'일', hoursUnit:'시간',
+    status:'상태', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel (기록 삭제)', cancelStatusHint:'Cancel로 저장하면 이 기록이 삭제됩니다.', cancelStatusConfirm:'Cancel 상태로 저장하면 이 업무 기록이 영구 삭제됩니다. 계속할까요?', statusDeleted:'Cancel 상태로 설정해 기록을 삭제했어요.', cancelNewEntry:'Cancel 상태에서는 새 기록을 만들지 않았어요.', newDayPrompt:'날짜가 바뀌었어요. 오늘 날짜로 새 업무 기록을 작성할까요?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete',
     edit:'수정', delete:'삭제', rename:'이름 저장', noCategories:'등록된 분류가 없습니다. 분류를 추가해보세요.',
     noEntries:'아직 기록이 없어요', noEntriesHint:'오늘 한 일을 첫 업무 기록으로 남겨보세요.',
     noMonthEntries:'이 달에는 기록이 없어요', noMonthHint:'다른 달을 선택하거나 새 기록을 추가해보세요.',
@@ -48,6 +49,7 @@
     koreanCategoryName:'Korean category name', englishCategoryName:'English category name',
     categoryDeleteNote:'Deleting a category keeps its entries and moves them to another category.',
     allCategories:'All categories', newest:'Newest first', oldest:'Oldest first', titleAZ:'Title A–Z',
+    status:'Status', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel (delete entry)', cancelStatusHint:'Saving as Cancel permanently deletes this entry.', cancelStatusConfirm:'Saving as Cancel permanently deletes this work entry. Continue?', statusDeleted:'Entry deleted after setting status to Cancel.', cancelNewEntry:'No entry was created because its status was Cancel.', newDayPrompt:'A new day has started. Would you like to create a work entry for today?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete',
     entriesUnit:'entries', daysUnit:'days', hoursUnit:'hours', edit:'Edit', delete:'Delete', rename:'Save names',
     noCategories:'No categories yet. Add one to get started.', noEntries:'No entries yet',
     noEntriesHint:'Add your first work entry for today.', noMonthEntries:'No entries for this month',
@@ -93,14 +95,14 @@
     const ids=new Set(),result=[];
     for(const row of list){
       if(!row||typeof row!=='object'||Array.isArray(row))return null;
-      const title=typeof row.title==='string'?row.title.trim():'',content=row.content==null?'':row.content,category=row.category==null?'':row.category,hours=normalizeHours(row.hours);
-      if(!validDate(row.date)||!title||title.length>80||typeof content!=='string'||content.length>3000||typeof category!=='string'||category.length>64||hours===null)return null;
+      const title=typeof row.title==='string'?row.title.trim():'',content=row.content==null?'':row.content,category=row.category==null?'':row.category,hours=normalizeHours(row.hours),status=row.status==null?'create':row.status;
+      if(!validDate(row.date)||!title||title.length>80||typeof content!=='string'||content.length>3000||typeof category!=='string'||category.length>64||hours===null||!['create','inProgress','complete'].includes(status))return null;
       let id=row.id==null?'':String(row.id);
       if(id.length>160||(id&&ids.has(id)))return null;
       if(!id){do{id=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'?globalThis.crypto.randomUUID():'worklog-'+Date.now()+'-'+Math.random().toString(36).slice(2);}while(ids.has(id));}
       ids.add(id);
       const created=Number(row.created);
-      result.push({id,date:row.date,title,content,category:category.trim(),hours,created:Number.isFinite(created)&&created>0?created:Date.now()});
+      result.push({id,date:row.date,title,content,category:category.trim(),hours,status,created:Number.isFinite(created)&&created>0?created:Date.now()});
     }
     return result;
   };
@@ -134,7 +136,14 @@
     catch(error){Object.entries(before).forEach(([key,value])=>{try{value==null?storage.removeItem(key):storage.setItem(key,value);}catch{}});throw error;}
     state.entries=next.entries;state.categories=next.categories;state.translations=next.translations;
   };
-  const today=new Date();
+  let today=new Date();
+  const todayISO=localDate(today);
+  let promptForNewDay=false;
+  try{
+    const previousActiveDate=storage&&storage.getItem(KEYS.activeDate);
+    promptForNewDay=Boolean(validDate(previousActiveDate)&&previousActiveDate<todayISO);
+    if(storage)storage.setItem(KEYS.activeDate,todayISO);
+  }catch{}
   $('monthFilter').value=localDate(today).slice(0,7);$('entryDate').value=localDate(today);state.pickerYear=today.getFullYear();
   let toastTimer;
   const toast=message=>{$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2600);};
@@ -204,7 +213,7 @@
     if(!shown.length){renderEmpty(Boolean(category||query));return;}
     $('entries').innerHTML=shown.map(row=>{
       const p=row.date.split('-'),day=Number(p[2]),d=new Date(Number(p[0]),Number(p[1])-1,day);
-      return '<article class="entry"><div class="daybox"><b>'+day+'</b><span>'+esc(d.toLocaleDateString(locale(),{month:'short'}))+' · '+esc(d.toLocaleDateString(locale(),{weekday:'short'}))+'</span></div><div class="entry-main"><h3>'+esc(row.title)+'</h3><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+(row.hours!==''?'<span class="time">'+esc(row.hours)+' '+esc(t('hoursUnit'))+'</span>':'')+'<time class="time" datetime="'+esc(row.date)+'">'+esc(dateText(row.date))+'</time></div></div><div class="entry-actions"><button class="iconbtn" type="button" data-edit="'+esc(row.id)+'" aria-label="'+esc(t('edit')+' '+row.title)+'">'+esc(t('edit'))+'</button><button class="iconbtn delete" type="button" data-delete="'+esc(row.id)+'" aria-label="'+esc(t('delete')+' '+row.title)+'">'+esc(t('delete'))+'</button></div></article>';
+      return '<article class="entry"><div class="daybox"><b>'+day+'</b><span>'+esc(d.toLocaleDateString(locale(),{month:'short'}))+' · '+esc(d.toLocaleDateString(locale(),{weekday:'short'}))+'</span></div><div class="entry-main"><h3>'+esc(row.title)+'</h3><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><span class="status-badge status-'+esc(row.status)+'">'+esc(t('status'+(row.status==='inProgress'?'InProgress':row.status==='complete'?'Complete':'Create')+'Label'))+'</span><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+(row.hours!==''?'<span class="time">'+esc(row.hours)+' '+esc(t('hoursUnit'))+'</span>':'')+'<time class="time" datetime="'+esc(row.date)+'">'+esc(dateText(row.date))+'</time></div></div><div class="entry-actions"><button class="iconbtn" type="button" data-edit="'+esc(row.id)+'" aria-label="'+esc(t('edit')+' '+row.title)+'">'+esc(t('edit'))+'</button><button class="iconbtn delete" type="button" data-delete="'+esc(row.id)+'" aria-label="'+esc(t('delete')+' '+row.title)+'">'+esc(t('delete'))+'</button></div></article>';
     }).join('');
   };
   const formError=(field,error,message)=>{$(field).setAttribute('aria-invalid','true');$(error).textContent=message;};
@@ -218,25 +227,32 @@
     if(hours===null){formError('entryHours','hoursError',t('hoursInvalid'));first=first||$('entryHours');}
     if(first){first.focus();return null;}return {title,content,hours,date:$('entryDate').value};
   };
-  const snapshot=()=>({date:$('entryDate').value,title:$('entryTitle').value,content:$('entryContent').value,category:$('entryCategory').value,hours:$('entryHours').value});
+  const snapshot=()=>({date:$('entryDate').value,title:$('entryTitle').value,content:$('entryContent').value,category:$('entryCategory').value,hours:$('entryHours').value,status:$('entryStatus').value});
   const openForm=row=>{
     state.focus=document.activeElement;$('journalForm').reset();$('editId').value=row?row.id:'';
     $('entryDate').value=row?row.date:localDate(today);$('entryTitle').value=row?row.title:'';$('entryContent').value=row?row.content:'';
     if(validDate($('entryDate').value)){const p=$('entryDate').value.split('-').map(Number);state.calendarDate=new Date(p[0],p[1]-1,1);}
-    $('entryHours').value=row?row.hours:'';renderCategories(row?row.category:state.categories[0]);$('entryCategory').value=row&&state.categories.includes(row.category)?row.category:(state.categories[0]||'');
+    $('entryHours').value=row?row.hours:'';$('entryStatus').value=row?row.status:'create';renderCategories(row?row.category:state.categories[0]);$('entryCategory').value=row&&state.categories.includes(row.category)?row.category:(state.categories[0]||'');
     $('formHeading').textContent=t(row?'editEntry':'newWorkEntry');$('saveBtn').textContent=t(row?'saveChanges':'saveEntry');clearErrors();state.snapshot=snapshot();
     $('formPanel').classList.add('open');$('overlay').hidden=!window.matchMedia('(max-width: 800px)').matches;requestAnimationFrame(()=>$('entryTitle').focus());
   };
   const closeForm=(force,restore)=>{
     if(!force&&state.snapshot&&JSON.stringify(snapshot())!==JSON.stringify(state.snapshot)&&!confirm(state.language==='ko'?'작성 중인 내용이 있어요. 저장하지 않고 닫을까요?':'You have unsaved changes. Close without saving?'))return;
     $('formPanel').classList.remove('open');$('overlay').hidden=true;$('journalForm').reset();$('editId').value='';state.snapshot=null;clearErrors();
-    $('formHeading').textContent=t('newWorkEntry');$('saveBtn').textContent=t('saveEntry');if(restore!==false&&state.focus&&state.focus.isConnected)state.focus.focus();
+    $('formHeading').textContent=t('newWorkEntry');$('saveBtn').textContent=t('saveEntry');if(restore!==false&&state.focus&&state.focus.isConnected)state.focus.focus();checkPendingDayPrompt();
   };
   const saveForm=event=>{
     event.preventDefault();if(state.saving)return;const value=validateForm();if(!value)return;if(state.storageProblem){toast(t('storageUnreadable'));return;}
-    const id=$('editId').value,old=state.entries.find(row=>row.id===id);let newId='';
+    const id=$('editId').value,old=state.entries.find(row=>row.id===id),status=$('entryStatus').value;
+    if(status==='cancel'){
+      if(!old){closeForm(true);toast(t('cancelNewEntry'));return;}
+      if(!confirm(t('cancelStatusConfirm')))return;
+      try{persist({entries:state.entries.filter(row=>row.id!==old.id),categories:[...state.categories],translations:{...state.translations}});render();closeForm(true);toast(t('statusDeleted'));}catch{toast(t('saveFailed'));}
+      return;
+    }
+    let newId='';
     if(!id){do{newId=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'?globalThis.crypto.randomUUID():'entry-'+Date.now()+'-'+Math.random().toString(36).slice(2);}while(state.entries.some(row=>row.id===newId));}
-    const entry={id:id||newId,date:value.date,title:value.title,content:value.content,category:$('entryCategory').value||state.categories[0]||'기타',hours:value.hours,created:old?old.created:Date.now()};
+    const entry={id:id||newId,date:value.date,title:value.title,content:value.content,category:$('entryCategory').value||state.categories[0]||'기타',hours:value.hours,status,created:old?old.created:Date.now()};
     state.saving=true;$('saveBtn').disabled=true;
     try{persist({entries:old?state.entries.map(row=>row.id===id?entry:row):[...state.entries,entry],categories:[...state.categories],translations:{...state.translations}});render();closeForm(true);toast(t(old?'entryUpdated':'entrySaved'));}
     catch{toast(t('saveFailed'));}finally{state.saving=false;$('saveBtn').disabled=false;}
@@ -314,6 +330,20 @@
     $('exportBtn').disabled=state.storageProblem;
     render();
   };
+  const checkPendingDayPrompt=()=>{
+    if(!promptForNewDay||$('formPanel').classList.contains('open')||!$('categoryModal').hidden)return;
+    promptForNewDay=false;
+    if(confirm(t('newDayPrompt')))openForm(null);
+  };
+  const checkDayChange=()=>{
+    const current=new Date(),currentISO=localDate(current);
+    if(currentISO===localDate(today))return;
+    today=current;
+    try{if(storage)storage.setItem(KEYS.activeDate,currentISO);}catch{}
+    $('todayText').textContent=today.toLocaleDateString(locale(),{year:'numeric',month:'long',day:'numeric',weekday:'long'});$('todayText').dateTime=currentISO;
+    $('monthFilter').value=currentISO.slice(0,7);state.pickerYear=current.getFullYear();updateMonth();render();
+    promptForNewDay=true;checkPendingDayPrompt();
+  };
   const trapFocus=(container,event)=>{
     if(event.key!=='Tab')return;const list=[...container.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled)')].filter(el=>!el.closest('[hidden]'));
     if(!list.length)return;const first=list[0],last=list[list.length-1];
@@ -364,5 +394,5 @@
     if(event.key==='Escape'&&$('formPanel').classList.contains('open')){event.preventDefault();closeForm(false);return;}
     if(window.matchMedia('(max-width: 800px)').matches&&$('formPanel').classList.contains('open'))trapFocus($('formPanel'),event);
   });
-  applyLanguage();
+  applyLanguage();checkPendingDayPrompt();window.setInterval(checkDayChange,30_000);
 })();
