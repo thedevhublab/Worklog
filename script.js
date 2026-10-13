@@ -4,7 +4,7 @@
   const DEFAULTS = ['기획', '회의', '개발', '디자인', '운영', '기타'];
   const BUILTIN = { '기획':'Planning', '회의':'Meetings', '개발':'Development', '디자인':'Design', '운영':'Operations', '기타':'Other' };
   const KO = {
-    brandSubtitle:'업무 기록', heroTitle:'업무 기록', heroDescription:'날짜별로 업무를 기록하고 관리하세요.',
+    heroTitle:'업무 기록', heroDescription:'날짜별로 업무를 기록하고 관리하세요.',
     languageControls:'데이터 및 언어', statistics:'업무 통계', searchFilters:'기록 검색과 필터', add:'추가', home:'Worklog 홈', filePicker:'JSON 백업 파일 선택',
     currentMonthEntries:'이번 달 기록', allEntries:'전체 업무일지', loggedDays:'기록한 날짜', workEntries:'업무 기록', newEntry:'새 기록',
     sortBy:'정렬 기준', filterByCategory:'분류 필터', searchEntries:'기록 검색', searchPlaceholder:'기록 검색...', manageCategories:'분류 관리',
@@ -16,11 +16,12 @@
     categoryDeleteNote:'분류를 삭제해도 업무 기록은 보존되며 다른 분류로 이동합니다.',
     allCategories:'전체 분류', newest:'최신순', oldest:'오래된순', titleAZ:'제목순', entriesUnit:'건', daysUnit:'일', hoursUnit:'시간',
     status:'Status', statusMenu:'Status', allStatuses:'전체 기록', allMonths:'전체 기간', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel', cancelStatusHint:'Cancel 상태도 기록에 저장되어 상태 메뉴에서 확인할 수 있습니다.', statusUpdated:'작업 상태를 변경했어요.', newDayPrompt:'날짜가 바뀌었어요. 오늘 날짜로 새 업무 기록을 작성할까요?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete', statusCancelLabel:'Cancel',
+    weeklySummary:'주간 요약', previousWeek:'이전 주', nextWeek:'다음 주', thisWeek:'이번 주', weeklyEntries:'건', noWeeklyEntries:'이번 주에는 기록이 없어요.', dayEntries:'건', statusSummary:'상태별 요약', statusSummaryPeriod:'전체 · 선택 기간', deadline:'마감일 (선택)', deadlineHint:'마감일은 업무 날짜와 별도로 저장됩니다.', overdue:'기한 초과', due:'마감', duplicate:'복제', duplicateEntry:'기록 복제', csvExport:'CSV 내보내기', csvEmpty:'내보낼 기록이 없습니다.', csvSuccess:'CSV 파일을 내보냈어요.',
     edit:'수정', delete:'삭제', rename:'이름 저장', noCategories:'등록된 분류가 없습니다. 분류를 추가해보세요.',
     noEntries:'아직 기록이 없어요', noEntriesHint:'오늘 한 일을 첫 업무 기록으로 남겨보세요.',
     noMonthEntries:'이 달에는 기록이 없어요', noMonthHint:'다른 달을 선택하거나 새 기록을 추가해보세요.',
     noResults:'검색 결과가 없어요', noResultsHint:'검색어나 필터 조건을 바꿔보세요.', noDetails:'내용이 입력되지 않았습니다.',
-    editEntry:'기록 수정', saveChanges:'수정 저장', entryUpdated:'기록을 수정했어요.', entrySaved:'업무 기록을 저장했어요.',
+    editEntry:'기록 수정', saveChanges:'수정 저장', entryUpdated:'기록을 수정했어요.', entrySaved:'업무 기록을 저장했어요.', deadlineInvalid:'유효한 마감일을 선택하세요.',
     entryDeleted:'기록을 삭제했어요.', categoryAdded:'분류를 추가했어요.', categoryRenamed:'분류 이름을 변경했어요.',
     categoryDeleted:'분류를 삭제했어요.', categoryBothRequired:'한국어와 영어 이름을 모두 입력하세요.',
     categoryDuplicate:'이미 등록된 한국어 분류명이에요.', categoryDeleteLast:'분류는 최소 1개 이상 있어야 합니다.',
@@ -35,7 +36,7 @@
     englishMissing:'영어 이름 미등록', selectDate:'날짜 선택', selected:'선택됨'
   };
   const EN = {
-    brandSubtitle:'Daily work log', heroTitle:'Work log',
+    heroTitle:'Work log',
     languageControls:'Data and language', statistics:'Work statistics', searchFilters:'Search and filter entries', add:'Add', home:'Worklog home', filePicker:'Choose a JSON backup file',
     heroDescription:'Record and manage your work by date.',
     currentMonthEntries:'This month', allEntries:'All entries', loggedDays:'Days logged', workEntries:'Work journal',
@@ -50,12 +51,13 @@
     categoryDeleteNote:'Deleting a category keeps its entries and moves them to another category.',
     allCategories:'All categories', newest:'Newest first', oldest:'Oldest first', titleAZ:'Title A–Z',
     status:'Status', statusMenu:'Status', allStatuses:'All entries', allMonths:'All time', statusCreate:'Create', statusInProgress:'In Progress', statusComplete:'Complete', statusCancel:'Cancel', cancelStatusHint:'Cancelled entries stay saved and are available in the Cancel status view.', statusUpdated:'Work status updated.', newDayPrompt:'A new day has started. Would you like to create a work entry for today?', statusCreateLabel:'Create', statusInProgressLabel:'In Progress', statusCompleteLabel:'Complete', statusCancelLabel:'Cancel',
+    weeklySummary:'Weekly summary', previousWeek:'Previous week', nextWeek:'Next week', thisWeek:'This week', weeklyEntries:'entries', noWeeklyEntries:'No entries for this week.', dayEntries:'entries', statusSummary:'Status summary', statusSummaryPeriod:'All time · selected month', deadline:'Deadline (optional)', deadlineHint:'The deadline is stored separately from the work date.', overdue:'Overdue', due:'Due', duplicate:'Duplicate', duplicateEntry:'Duplicate entry', csvExport:'Export CSV', csvEmpty:'There are no entries to export.', csvSuccess:'CSV file exported.',
     entriesUnit:'entries', daysUnit:'days', hoursUnit:'hours', edit:'Edit', delete:'Delete', rename:'Save names',
     noCategories:'No categories yet. Add one to get started.', noEntries:'No entries yet',
     noEntriesHint:'Add your first work entry for today.', noMonthEntries:'No entries for this month',
     noMonthHint:'Choose another month or add a new entry.', noResults:'No results found',
     noResultsHint:'Try changing your search or filters.', noDetails:'No details provided.',
-    editEntry:'Edit entry', saveChanges:'Save changes', entryUpdated:'Entry updated.', entrySaved:'Entry saved.',
+    editEntry:'Edit entry', saveChanges:'Save changes', entryUpdated:'Entry updated.', entrySaved:'Entry saved.', deadlineInvalid:'Choose a valid deadline.',
     entryDeleted:'Entry deleted.', categoryAdded:'Category added.', categoryRenamed:'Category names updated.',
     categoryDeleted:'Category deleted.', categoryBothRequired:'Enter both Korean and English names.',
     categoryDuplicate:'That Korean category name is already used.', categoryDeleteLast:'Keep at least one category.',
@@ -71,12 +73,15 @@
     nextYear:'Next year', englishMissing:'English name not set', selectDate:'Choose a date', selected:'Selected'
   };
   const $ = id => document.getElementById(id);
-  const state = { entries:[], categories:[...DEFAULTS], translations:{}, language:'ko', selectedStatus:'all', storageProblem:false, pickerYear:new Date().getFullYear(), calendarDate:new Date(), snapshot:null, focus:null, saving:false };
+  const state = { entries:[], categories:[...DEFAULTS], translations:{}, language:'ko', selectedStatus:'all', weekStart:null, storageProblem:false, pickerYear:new Date().getFullYear(), calendarDate:new Date(), snapshot:null, focus:null, saving:false };
   const dict = () => state.language === 'ko' ? KO : EN;
   const t = key => dict()[key] || key;
   const locale = () => state.language === 'ko' ? 'ko-KR' : 'en-US';
   const esc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const localDate = date => date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  const dateFromISO = value => {const [y,m,d]=value.split('-').map(Number);return new Date(y,m-1,d);};
+  const addDays = (value,amount) => {const date=dateFromISO(value);date.setDate(date.getDate()+amount);return localDate(date);};
+  const mondayOf = date => {const day=new Date(date.getFullYear(),date.getMonth(),date.getDate());day.setDate(day.getDate()-((day.getDay()+6)%7));return localDate(day);};
   const validDate = value => {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
     const p=value.split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]);
@@ -95,14 +100,14 @@
     const ids=new Set(),result=[];
     for(const row of list){
       if(!row||typeof row!=='object'||Array.isArray(row))return null;
-      const title=typeof row.title==='string'?row.title.trim():'',content=row.content==null?'':row.content,category=row.category==null?'':row.category,hours=normalizeHours(row.hours),status=row.status==null?'create':row.status;
-      if(!validDate(row.date)||!title||title.length>80||typeof content!=='string'||content.length>3000||typeof category!=='string'||category.length>64||hours===null||!['create','inProgress','complete','cancel'].includes(status))return null;
+      const title=typeof row.title==='string'?row.title.trim():'',content=row.content==null?'':row.content,category=row.category==null?'':row.category,hours=normalizeHours(row.hours),status=row.status==null?'create':row.status,deadline=row.deadline==null?'':row.deadline;
+      if(!validDate(row.date)||!title||title.length>80||typeof content!=='string'||content.length>3000||typeof category!=='string'||category.length>64||hours===null||!['create','inProgress','complete','cancel'].includes(status)||(deadline!==''&&!validDate(deadline)))return null;
       let id=row.id==null?'':String(row.id);
       if(id.length>160||(id&&ids.has(id)))return null;
       if(!id){do{id=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'?globalThis.crypto.randomUUID():'worklog-'+Date.now()+'-'+Math.random().toString(36).slice(2);}while(ids.has(id));}
       ids.add(id);
       const created=Number(row.created);
-      result.push({id,date:row.date,title,content,category:category.trim(),hours,status,created:Number.isFinite(created)&&created>0?created:Date.now()});
+      result.push({id,date:row.date,title,content,category:category.trim(),hours,status,deadline,created:Number.isFinite(created)&&created>0?created:Date.now()});
     }
     return result;
   };
@@ -138,6 +143,7 @@
   };
   let today=new Date();
   const todayISO=localDate(today);
+  state.weekStart=mondayOf(today);
   let promptForNewDay=false;
   try{
     const previousActiveDate=storage&&storage.getItem(KEYS.activeDate);
@@ -173,6 +179,23 @@
     const p=value.split('-').map(Number);
     return new Date(p[0],p[1]-1,p[2]).toLocaleDateString(locale(),{year:'numeric',month:'long',day:'numeric',weekday:'long'});
   };
+  const statusItems=[['create','statusCreate'],['inProgress','statusInProgress'],['complete','statusComplete'],['cancel','statusCancel']];
+  const countByStatus=entries=>entries.reduce((counts,row)=>{counts[row.status]=(counts[row.status]||0)+1;return counts;},{create:0,inProgress:0,complete:0,cancel:0});
+  const statusLabel=status=>t(statusItems.find(([value])=>value===status)?.[1]||'statusCreate');
+  const renderStatusSummary=()=>{
+    const all=countByStatus(state.entries),month=$('monthFilter').value,period=month?state.entries.filter(row=>row.date.startsWith(month)):state.entries,periodCounts=countByStatus(period);
+    $('statusSummaryPeriod').textContent=month?t('allMonths')+' · '+monthText(month):t('allMonths');
+    $('statusSummary').innerHTML=statusItems.map(([value,key])=>'<button class="status-summary-card status-'+value+'" type="button" data-summary-status="'+value+'" aria-label="'+esc(statusLabel(value)+': '+all[value]+' · '+periodCounts[value])+'"><span class="status-summary-name">'+esc(t(key))+'</span><strong>'+all[value]+'</strong><span class="status-summary-detail">'+esc(String(periodCounts[value]))+' '+esc(countEntries(periodCounts[value]))+'</span></button>').join('');
+  };
+  const renderWeekly=()=>{
+    const start=state.weekStart||mondayOf(today),end=addDays(start,6),rows=state.entries.filter(row=>row.date>=start&&row.date<=end).sort((a,b)=>a.date.localeCompare(b.date)||a.created-b.created),counts=countByStatus(rows);
+    $('weeklyRange').textContent=dateLabel(start)+' – '+dateLabel(end);
+    $('weeklyCount').textContent=String(rows.length);
+    $('weeklyStatusSummary').innerHTML=statusItems.map(([value,key])=>'<span class="weekly-status-item"><span>'+esc(t(key))+'</span><strong>'+counts[value]+'</strong></span>').join('');
+    if(!rows.length){$('weeklyEntries').innerHTML='<p class="weekly-empty">'+esc(t('noWeeklyEntries'))+'</p>';return;}
+    const days=[...new Set(rows.map(row=>row.date))];
+    $('weeklyEntries').innerHTML=days.map(date=>'<section class="weekly-day"><h3><time datetime="'+date+'">'+esc(dateLabel(date))+'</time><span>'+rows.filter(row=>row.date===date).length+' '+esc(t('dayEntries'))+'</span></h3>'+rows.filter(row=>row.date===date).map(row=>'<article class="weekly-entry"><div><strong>'+esc(row.title)+'</strong><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><span class="status-pill status-'+esc(row.status)+'">'+esc(statusLabel(row.status))+'</span><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+(row.deadline?'<span class="time">'+esc(t('due'))+': '+esc(dateLabel(row.deadline))+'</span>':'')+'</div></div></article>').join('')+'</section>').join('');
+  };
   const renderCalendar=()=>{
     const year=state.calendarDate.getFullYear(),month=state.calendarDate.getMonth();
     $('calendarMonthLabel').textContent=new Date(year,month,1).toLocaleDateString(locale(),{year:'numeric',month:'long'});
@@ -203,11 +226,23 @@
     document.querySelectorAll('[data-status-count]').forEach(element=>{element.textContent=String(counts[element.dataset.statusCount]||0);});
     document.querySelectorAll('[data-status-view]').forEach(button=>{const active=button.dataset.statusView===state.selectedStatus;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false');});
   };
-  const render=()=>{
-    renderStatusMenu();renderCategories();const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),needle=query.toLocaleLowerCase(locale());
+  const filteredEntries=()=>{
+    const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),needle=query.toLocaleLowerCase(locale());
     const shown=state.entries.filter(row=>(!month||row.date.startsWith(month))&&(state.selectedStatus==='all'||row.status===state.selectedStatus)&&(!category||row.category===category)&&(!needle||(row.title+' '+row.content+' '+row.category+' '+categoryLabel(row.category)).toLocaleLowerCase(locale()).includes(needle)));
     const collator=new Intl.Collator(state.language==='ko'?'ko':'en',{sensitivity:'base',numeric:true});
     shown.sort((a,b)=>$('sortFilter').value==='old'?a.date.localeCompare(b.date)||a.created-b.created:$('sortFilter').value==='title'?collator.compare(a.title,b.title)||b.date.localeCompare(a.date):b.date.localeCompare(a.date)||b.created-a.created);
+    return shown;
+  };
+  const exportCSV=()=>{
+    const rows=filteredEntries();if(!rows.length){toast(t('csvEmpty'));return;}
+    const headers=state.language==='ko'?['날짜','제목','업무 내용','분류','상태','소요 시간','마감일']:['Date','Title','Details','Category','Status','Time spent','Deadline'];
+    const cell=value=>'"'+String(value==null?'':value).replace(/"/g,'""')+'"';
+    const data=[headers,...rows.map(row=>[row.date,row.title,row.content,categoryLabel(row.category),statusLabel(row.status),row.hours===''?'':String(row.hours),row.deadline||''])].map(line=>line.map(cell).join(',')).join('\r\n');
+    const blob=new Blob(['\uFEFF',data],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download='Worklog_'+localDate(today)+'.csv';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(t('csvSuccess'));
+  };
+  const render=()=>{
+    renderStatusMenu();renderCategories();renderStatusSummary();renderWeekly();const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),shown=filteredEntries();
     $('resultCount').textContent=shown.length+' '+countEntries(shown.length);
     const monthCount=state.entries.filter(row=>row.date.startsWith(localDate(today).slice(0,7))).length;
     $('monthCount').innerHTML=monthCount+'<small>'+esc(countEntries(monthCount))+'</small>';
@@ -219,28 +254,31 @@
     if(!shown.length){renderEmpty(Boolean(category||query||state.selectedStatus!=='all'));return;}
     $('entries').innerHTML=shown.map(row=>{
       const p=row.date.split('-'),day=Number(p[2]),d=new Date(Number(p[0]),Number(p[1])-1,day);
-      const statusOptions=[['create','statusCreate'],['inProgress','statusInProgress'],['complete','statusComplete'],['cancel','statusCancel']].map(([value,key])=>'<option value="'+value+'"'+(row.status===value?' selected':'')+'>'+esc(t(key))+'</option>').join('');
-      return '<article class="entry"><div class="daybox"><b>'+day+'</b><span>'+esc(d.toLocaleDateString(locale(),{month:'short'}))+' · '+esc(d.toLocaleDateString(locale(),{weekday:'short'}))+'</span></div><div class="entry-main"><h3>'+esc(row.title)+'</h3><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><label class="visually-hidden" for="status-'+esc(row.id)+'">'+esc(t('status')+': '+row.title)+'</label><select class="status-select status-'+esc(row.status)+'" id="status-'+esc(row.id)+'" data-entry-status="'+esc(row.id)+'">'+statusOptions+'</select><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+(row.hours!==''?'<span class="time">'+esc(row.hours)+' '+esc(t('hoursUnit'))+'</span>':'')+'<time class="time" datetime="'+esc(row.date)+'">'+esc(dateText(row.date))+'</time></div></div><div class="entry-actions"><button class="iconbtn" type="button" data-edit="'+esc(row.id)+'" aria-label="'+esc(t('edit')+' '+row.title)+'">'+esc(t('edit'))+'</button><button class="iconbtn delete" type="button" data-delete="'+esc(row.id)+'" aria-label="'+esc(t('delete')+' '+row.title)+'">'+esc(t('delete'))+'</button></div></article>';
+      const statusOptions=statusItems.map(([value,key])=>'<option value="'+value+'"'+(row.status===value?' selected':'')+'>'+esc(t(key))+'</option>').join('');
+      const overdue=row.deadline&&row.deadline<localDate(today)&&!['complete','cancel'].includes(row.status);
+      const deadline=row.deadline?'<span class="deadline-tag'+(overdue?' overdue':'')+'">'+esc(t(overdue?'overdue':'due'))+': '+esc(dateText(row.deadline))+'</span>':'';
+      return '<article class="entry"><div class="daybox"><b>'+day+'</b><span>'+esc(d.toLocaleDateString(locale(),{month:'short'}))+' · '+esc(d.toLocaleDateString(locale(),{weekday:'short'}))+'</span></div><div class="entry-main"><h3>'+esc(row.title)+'</h3><p>'+esc(row.content||t('noDetails'))+'</p><div class="meta"><label class="visually-hidden" for="status-'+esc(row.id)+'">'+esc(t('status')+': '+row.title)+'</label><select class="status-select status-'+esc(row.status)+'" id="status-'+esc(row.id)+'" data-entry-status="'+esc(row.id)+'">'+statusOptions+'</select><span class="tag">'+esc(categoryLabel(row.category))+'</span>'+deadline+(row.hours!==''?'<span class="time">'+esc(row.hours)+' '+esc(t('hoursUnit'))+'</span>':'')+'<time class="time" datetime="'+esc(row.date)+'">'+esc(dateText(row.date))+'</time></div></div><div class="entry-actions"><button class="iconbtn" type="button" data-copy="'+esc(row.id)+'" aria-label="'+esc(t('duplicate')+' '+row.title)+'">'+esc(t('duplicate'))+'</button><button class="iconbtn" type="button" data-edit="'+esc(row.id)+'" aria-label="'+esc(t('edit')+' '+row.title)+'">'+esc(t('edit'))+'</button><button class="iconbtn delete" type="button" data-delete="'+esc(row.id)+'" aria-label="'+esc(t('delete')+' '+row.title)+'">'+esc(t('delete'))+'</button></div></article>';
     }).join('');
   };
   const formError=(field,error,message)=>{$(field).setAttribute('aria-invalid','true');$(error).textContent=message;};
-  const clearErrors=()=>{['entryDate','entryTitle','entryHours','entryContent'].forEach(id=>$(id).removeAttribute('aria-invalid'));['dateError','titleError','hoursError'].forEach(id=>$(id).textContent='');$('contentHint').textContent=t('detailsLimit');$('contentHint').classList.remove('field-error');};
+  const clearErrors=()=>{['entryDate','entryDeadline','entryTitle','entryHours','entryContent'].forEach(id=>$(id).removeAttribute('aria-invalid'));['dateError','deadlineError','titleError','hoursError'].forEach(id=>$(id).textContent='');$('contentHint').textContent=t('detailsLimit');$('contentHint').classList.remove('field-error');};
   const validateForm=()=>{
     clearErrors();const title=$('entryTitle').value.trim(),content=$('entryContent').value.trim(),hours=normalizeHours($('entryHours').value);let first=null;
     if(!validDate($('entryDate').value)){formError('entryDate','dateError',t('dateInvalid'));first=first||$('entryDate');}
+    if($('entryDeadline').value&&!validDate($('entryDeadline').value)){formError('entryDeadline','deadlineError',t('deadlineInvalid'));first=first||$('entryDeadline');}
     if(!title){formError('entryTitle','titleError',t('titleRequired'));first=first||$('entryTitle');}
     else if(title.length>80){formError('entryTitle','titleError',t('titleTooLong'));first=first||$('entryTitle');}
     if(content.length>3000){$('entryContent').setAttribute('aria-invalid','true');$('contentHint').textContent=t('detailsTooLong');$('contentHint').classList.add('field-error');first=first||$('entryContent');}
     if(hours===null){formError('entryHours','hoursError',t('hoursInvalid'));first=first||$('entryHours');}
     if(first){first.focus();return null;}return {title,content,hours,date:$('entryDate').value};
   };
-  const snapshot=()=>({date:$('entryDate').value,title:$('entryTitle').value,content:$('entryContent').value,category:$('entryCategory').value,hours:$('entryHours').value,status:$('entryStatus').value});
-  const openForm=row=>{
+  const snapshot=()=>({date:$('entryDate').value,deadline:$('entryDeadline').value,title:$('entryTitle').value,content:$('entryContent').value,category:$('entryCategory').value,hours:$('entryHours').value,status:$('entryStatus').value});
+  const openForm=(row,duplicate=false)=>{
     state.focus=document.activeElement;$('journalForm').reset();$('editId').value=row?row.id:'';
-    $('entryDate').value=row?row.date:localDate(today);$('entryTitle').value=row?row.title:'';$('entryContent').value=row?row.content:'';
+    $('entryDate').value=row&&!duplicate?row.date:localDate(today);$('entryDeadline').value=row?row.deadline||'':'';$('entryTitle').value=row?row.title:'';$('entryContent').value=row?row.content:'';
     if(validDate($('entryDate').value)){const p=$('entryDate').value.split('-').map(Number);state.calendarDate=new Date(p[0],p[1]-1,1);}
     $('entryHours').value=row?row.hours:'';$('entryStatus').value=row?row.status:'create';renderCategories(row?row.category:state.categories[0]);$('entryCategory').value=row&&state.categories.includes(row.category)?row.category:(state.categories[0]||'');
-    $('formHeading').textContent=t(row?'editEntry':'newWorkEntry');$('saveBtn').textContent=t(row?'saveChanges':'saveEntry');clearErrors();state.snapshot=snapshot();
+    $('formHeading').textContent=t(row&&!duplicate?'editEntry':duplicate?'duplicateEntry':'newWorkEntry');$('saveBtn').textContent=t(row&&!duplicate?'saveChanges':'saveEntry');clearErrors();state.snapshot=snapshot();
     $('formPanel').classList.add('open');$('overlay').hidden=!window.matchMedia('(max-width: 800px)').matches;requestAnimationFrame(()=>$('entryTitle').focus());
   };
   const closeForm=(force,restore)=>{
@@ -253,7 +291,7 @@
     const id=$('editId').value,old=state.entries.find(row=>row.id===id),status=$('entryStatus').value;
     let newId='';
     if(!id){do{newId=globalThis.crypto&&typeof globalThis.crypto.randomUUID==='function'?globalThis.crypto.randomUUID():'entry-'+Date.now()+'-'+Math.random().toString(36).slice(2);}while(state.entries.some(row=>row.id===newId));}
-    const entry={id:id||newId,date:value.date,title:value.title,content:value.content,category:$('entryCategory').value||state.categories[0]||'기타',hours:value.hours,status,created:old?old.created:Date.now()};
+    const entry={id:id||newId,date:value.date,title:value.title,content:value.content,category:$('entryCategory').value||state.categories[0]||'기타',hours:value.hours,status,deadline:$('entryDeadline').value,created:old?old.created:Date.now()};
     state.saving=true;$('saveBtn').disabled=true;
     try{persist({entries:old?state.entries.map(row=>row.id===id?entry:row):[...state.entries,entry],categories:[...state.categories],translations:{...state.translations}});render();closeForm(true);toast(t(old?'entryUpdated':'entrySaved'));}
     catch{toast(t('saveFailed'));}finally{state.saving=false;$('saveBtn').disabled=false;}
@@ -321,7 +359,7 @@
     $('dateTrigger').setAttribute('aria-label',t('selectDate'));$('datePopup').setAttribute('aria-label',t('selectDate'));
     $('previousCalendarMonth').setAttribute('aria-label',t('previousMonth'));$('nextCalendarMonth').setAttribute('aria-label',t('nextMonth'));renderCalendar();
     document.querySelectorAll('[data-i18n-aria]').forEach(element=>element.setAttribute('aria-label',t(element.dataset.i18nAria)));
-    $('entryDate').lang=state.language;
+    $('entryDate').lang=state.language;$('entryDeadline').lang=state.language;
     $('formHeading').textContent=t($('editId').value?'editEntry':'newWorkEntry');
     $('saveBtn').textContent=t($('editId').value?'saveChanges':'saveEntry');
     $('closeForm').textContent=t('close');$('cancelBtn').textContent=t('cancel');$('closeCategoryModal').textContent=t('close');
@@ -339,7 +377,9 @@
   const checkDayChange=()=>{
     const current=new Date(),currentISO=localDate(current);
     if(currentISO===localDate(today))return;
+    const previousWeek=mondayOf(today);
     today=current;
+    if(state.weekStart===previousWeek)state.weekStart=mondayOf(today);
     try{if(storage)storage.setItem(KEYS.activeDate,currentISO);}catch{}
     $('todayText').textContent=today.toLocaleDateString(locale(),{year:'numeric',month:'long',day:'numeric',weekday:'long'});$('todayText').dateTime=currentISO;
     $('monthFilter').value=currentISO.slice(0,7);state.pickerYear=current.getFullYear();updateMonth();render();
@@ -353,7 +393,8 @@
   $('journalForm').addEventListener('submit',saveForm);
   $('newBtn').addEventListener('click',()=>openForm(null));$('cancelBtn').addEventListener('click',()=>closeForm(false));$('closeForm').addEventListener('click',()=>closeForm(false));$('overlay').addEventListener('click',()=>closeForm(false));
   $('entries').addEventListener('click',event=>{
-    const edit=event.target.closest('[data-edit]'),del=event.target.closest('[data-delete]');
+    const copy=event.target.closest('[data-copy]'),edit=event.target.closest('[data-edit]'),del=event.target.closest('[data-delete]');
+    if(copy){const row=state.entries.find(item=>item.id===copy.dataset.copy);if(row)openForm(row,true);}
     if(edit){const row=state.entries.find(item=>item.id===edit.dataset.edit);if(row)openForm(row);}
     if(del){const row=state.entries.find(item=>item.id===del.dataset.delete);if(!row||!confirm(state.language==='ko'?'“'+row.title+'” 기록을 삭제할까요?':'Delete “'+row.title+'”?'))return;
       try{persist({entries:state.entries.filter(item=>item.id!==row.id),categories:[...state.categories],translations:{...state.translations}});render();toast(t('entryDeleted'));}catch{toast(t('saveFailed'));}}
@@ -364,6 +405,11 @@
     try{persist({entries:state.entries.map(item=>item.id===row.id?{...item,status:select.value}:item),categories:[...state.categories],translations:{...state.translations}});render();toast(t('statusUpdated'));}catch{select.value=row.status;toast(t('saveFailed'));}
   });
   $('statusMenu').addEventListener('click',event=>{const button=event.target.closest('[data-status-view]');if(!button)return;state.selectedStatus=button.dataset.statusView;$('monthFilter').value='';updateMonth();render();});
+  $('statusSummary').addEventListener('click',event=>{const button=event.target.closest('[data-summary-status]');if(!button)return;state.selectedStatus=button.dataset.summaryStatus;render();$('entriesHeading').scrollIntoView({behavior:'smooth',block:'start'});});
+  $('previousWeek').addEventListener('click',()=>{state.weekStart=addDays(state.weekStart,-7);renderWeekly();});
+  $('nextWeek').addEventListener('click',()=>{state.weekStart=addDays(state.weekStart,7);renderWeekly();});
+  $('currentWeek').addEventListener('click',()=>{state.weekStart=mondayOf(today);renderWeekly();});
+  $('csvExportBtn').addEventListener('click',exportCSV);
   $('manageCategoriesBtn').addEventListener('click',openCategory);$('closeCategoryModal').addEventListener('click',()=>closeCategory(true));
   $('categoryModal').addEventListener('click',event=>{if(event.target===$('categoryModal'))closeCategory(true);});
   $('categoryForm').addEventListener('submit',addCategory);

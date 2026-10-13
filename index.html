@@ -12,11 +12,7 @@
     <div class="shell">
       <header class="topbar">
         <a class="brand" href="./" aria-label="Worklog 홈" data-i18n-aria="home">
-          <span class="logo" aria-hidden="true">✳</span>
-          <span class="brand-copy">
-            <span class="brandname">Work<span>log</span></span>
-            <span class="brand-sub" data-i18n="brandSubtitle">업무 기록</span>
-          </span>
+          <span class="brandname">Work<span>log</span></span>
         </a>
         <div class="top-actions" aria-label="데이터 및 언어" data-i18n-aria="languageControls">
           <button class="btn" id="languageBtn" type="button" aria-label="Change language">EN</button>
@@ -51,6 +47,33 @@
           </article>
         </section>
 
+        <section class="panel summary-panel" aria-labelledby="statusSummaryHeading">
+          <div class="panel-head">
+            <h2 class="panel-title" id="statusSummaryHeading" data-i18n="statusSummary">상태별 요약</h2>
+            <span class="summary-period" id="statusSummaryPeriod"></span>
+          </div>
+          <div class="status-summary-grid" id="statusSummary"></div>
+        </section>
+
+        <section class="panel weekly-panel" aria-labelledby="weeklyHeading">
+          <div class="panel-head weekly-head">
+            <div>
+              <h2 class="panel-title" id="weeklyHeading" data-i18n="weeklySummary">주간 요약</h2>
+              <p class="weekly-range" id="weeklyRange"></p>
+            </div>
+            <div class="weekly-controls">
+              <button class="btn" id="previousWeek" type="button" aria-label="이전 주" data-i18n-aria="previousWeek">‹</button>
+              <button class="btn" id="currentWeek" type="button" data-i18n="thisWeek">이번 주</button>
+              <button class="btn" id="nextWeek" type="button" aria-label="다음 주" data-i18n-aria="nextWeek">›</button>
+            </div>
+          </div>
+          <div class="weekly-overview">
+            <strong><span id="weeklyCount">0</span> <span data-i18n="weeklyEntries">건</span></strong>
+            <div class="weekly-status-grid" id="weeklyStatusSummary"></div>
+          </div>
+          <div class="weekly-days" id="weeklyEntries" aria-live="polite"></div>
+        </section>
+
         <div class="main-layout">
           <aside class="panel status-sidebar" aria-label="상태 메뉴" data-i18n-aria="statusMenu">
             <h2 data-i18n="statusMenu">Status</h2>
@@ -65,7 +88,10 @@
           <section class="panel list-panel" aria-labelledby="entriesHeading">
             <div class="panel-head">
               <h2 class="panel-title" id="entriesHeading"><span data-i18n="workEntries">업무 기록</span> <span class="count" id="resultCount">0건</span></h2>
-              <button class="btn primary" id="newBtn" type="button">＋ <span data-i18n="newEntry">새 기록</span></button>
+              <div class="panel-actions">
+                <button class="btn" id="csvExportBtn" type="button" data-i18n="csvExport">CSV 내보내기</button>
+                <button class="btn primary" id="newBtn" type="button">＋ <span data-i18n="newEntry">새 기록</span></button>
+              </div>
             </div>
 
             <div class="filters" aria-label="기록 검색과 필터" data-i18n-aria="searchFilters">
@@ -122,6 +148,12 @@
                 </div>
                 <small class="field-hint" id="dateHint" data-i18n="dateHint">YYYY-MM-DD</small>
                 <small class="field-error" id="dateError" aria-live="polite"></small>
+              </div>
+              <div class="form-group">
+                <label for="entryDeadline" data-i18n="deadline">마감일 (선택)</label>
+                <input id="entryDeadline" type="date" aria-describedby="deadlineHint deadlineError">
+                <small class="field-hint" data-i18n="deadlineHint">마감일은 업무 날짜와 별도로 저장됩니다.</small>
+                <small class="field-error" id="deadlineError" aria-live="polite"></small>
               </div>
               <div class="form-group">
                 <label for="entryTitle"><span data-i18n="title">업무 제목</span> <span class="required-mark" aria-hidden="true">*</span></label>
