@@ -55,6 +55,41 @@
           <div class="status-summary-grid" id="statusSummary"></div>
         </section>
 
+        <section class="panel analytics-panel" aria-labelledby="analyticsHeading">
+          <div class="panel-head analytics-head">
+            <div>
+              <h2 class="panel-title" id="analyticsHeading" data-i18n="analyticsHeading">기록 통계</h2>
+              <p class="analytics-range" id="analyticsRange"></p>
+            </div>
+            <div class="analytics-filter" id="analyticsFilter" role="group" aria-label="반복 기록 통계 포함 여부" data-i18n-aria="analyticsFilterLabel">
+              <button class="analytics-filter-button active" id="includeRepeatsBtn" type="button" data-analytics-repeats="include" aria-pressed="true" data-i18n="analyticsAll">전체 기록</button>
+              <button class="analytics-filter-button" id="excludeRepeatsBtn" type="button" data-analytics-repeats="exclude" aria-pressed="false" data-i18n="analyticsExclude">반복 기록 제외</button>
+            </div>
+          </div>
+          <div class="analytics-kpis" aria-label="통계 요약" data-i18n-aria="analyticsMetrics">
+            <div><span data-i18n="analyticsEntryCount">분석 기록</span><strong id="analyticsEntryCount">0</strong></div>
+            <div><span data-i18n="analyticsDayCount">기록한 날짜</span><strong id="analyticsDayCount">0</strong></div>
+            <div><span data-i18n="analyticsHours">총 소요 시간</span><strong id="analyticsHours">0</strong></div>
+          </div>
+          <div class="analytics-grid">
+            <section class="chart-card" aria-labelledby="trendHeading">
+              <h3 id="trendHeading" data-i18n="analyticsTrend">월별 업무량 추이</h3>
+              <p class="chart-description" id="trendDescription" data-i18n="analyticsTrendHint">선택한 달은 일별, 전체 기간은 최근 12개월의 기록 수를 표시합니다.</p>
+              <div class="chart-list trend-chart" id="trendChart" role="list" aria-labelledby="trendHeading" aria-describedby="trendDescription"></div>
+            </section>
+            <section class="chart-card" aria-labelledby="categoryChartHeading">
+              <h3 id="categoryChartHeading" data-i18n="analyticsCategories">분류별 기록</h3>
+              <p class="chart-description" id="categoryChartDescription" data-i18n="analyticsCategoryHint">분류별 기록 수입니다.</p>
+              <div class="chart-list" id="categoryChart" role="list" aria-labelledby="categoryChartHeading" aria-describedby="categoryChartDescription"></div>
+            </section>
+            <section class="chart-card" aria-labelledby="statusChartHeading">
+              <h3 id="statusChartHeading" data-i18n="analyticsStatuses">상태별 기록</h3>
+              <p class="chart-description" id="statusChartDescription" data-i18n="analyticsStatusHint">상태별 기록 수입니다.</p>
+              <div class="chart-list" id="statusChart" role="list" aria-labelledby="statusChartHeading" aria-describedby="statusChartDescription"></div>
+            </section>
+          </div>
+        </section>
+
         <section class="panel weekly-panel" aria-labelledby="weeklyHeading">
           <div class="panel-head weekly-head">
             <div>
@@ -149,6 +184,47 @@
                 <small class="field-hint" id="dateHint" data-i18n="dateHint">YYYY-MM-DD</small>
                 <small class="field-error" id="dateError" aria-live="polite"></small>
               </div>
+              <div class="form-group recurrence-toggle" id="repeatToggle">
+                <label class="recurrence-card" for="repeatEnabled">
+                  <span class="recurrence-copy"><strong data-i18n="repeatEnabled">반복 일정으로 만들기</strong><small data-i18n="repeatHint">종료일까지 반복 기록을 한 번에 생성합니다.</small></span>
+                  <input id="repeatEnabled" type="checkbox" aria-controls="repeatOptions" aria-expanded="false">
+                </label>
+              </div>
+              <section class="repeat-options" id="repeatOptions" hidden aria-labelledby="repeatSettingsLabel" aria-describedby="repeatEndHint repeatPreview repeatError">
+                <h3 id="repeatSettingsLabel" data-i18n="repeatSettings">반복 설정</h3>
+                <div class="repeat-fields">
+                  <div class="form-group">
+                    <label for="repeatFrequency" data-i18n="repeatFrequency">반복 주기</label>
+                    <select id="repeatFrequency" class="field">
+                      <option value="daily" data-i18n="repeatDaily">매일</option>
+                      <option value="weekly" data-i18n="repeatWeekly">매주</option>
+                      <option value="biweekly" data-i18n="repeatBiweekly">격주</option>
+                      <option value="monthly" data-i18n="repeatMonthly">매월</option>
+                      <option value="custom" data-i18n="repeatCustom">요일 직접 선택</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="repeatEndDate" data-i18n="repeatEndDate">종료일</label>
+                    <input id="repeatEndDate" type="date" aria-describedby="repeatEndHint repeatError">
+                  </div>
+                </div>
+                <div class="repeat-weekdays" id="repeatWeekdays" hidden role="group" aria-labelledby="repeatWeekdayLabel" aria-describedby="repeatWeekdayHint repeatError">
+                  <span class="repeat-weekday-label" id="repeatWeekdayLabel" data-i18n="repeatWeekdayLabel">반복할 요일</span>
+                  <div class="weekday-choice-grid">
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="1"><span data-repeat-day="1">월</span></label>
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="2"><span data-repeat-day="2">화</span></label>
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="3"><span data-repeat-day="3">수</span></label>
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="4"><span data-repeat-day="4">목</span></label>
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="5"><span data-repeat-day="5">금</span></label>
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="6"><span data-repeat-day="6">토</span></label>
+                    <label class="weekday-chip"><input type="checkbox" data-repeat-weekday value="7"><span data-repeat-day="7">일</span></label>
+                  </div>
+                  <small class="field-hint" id="repeatWeekdayHint" data-i18n="repeatWeekdayHint">선택한 요일마다 기록을 만듭니다.</small>
+                </div>
+                <small class="field-hint" id="repeatEndHint" data-i18n="repeatEndHint">종료일을 포함해 기록을 생성합니다.</small>
+                <small class="field-hint repeat-preview" id="repeatPreview" aria-live="polite"></small>
+                <small class="field-error" id="repeatError" aria-live="polite"></small>
+              </section>
               <div class="form-group">
                 <label for="entryDeadline" data-i18n="deadline">마감일 (선택)</label>
                 <input id="entryDeadline" type="date" aria-describedby="deadlineHint deadlineError">

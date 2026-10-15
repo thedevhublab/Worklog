@@ -8,9 +8,10 @@ A lightweight bilingual work journal built with HTML, CSS, and vanilla JavaScrip
 
 ## Features
 
-- **Daily entries:** Create, edit, duplicate, and delete records with a work date, optional deadline, title, details, category, and optional time spent. Duplicating opens an unsaved draft for today with the source fields copied. Titles are required and limited to 80 characters; details support up to 3,000 characters. Time accepts 0–24 hours in half-hour increments.
+- **Daily entries:** Create, edit, and delete records with a work date, optional deadline, title, details, category, and optional time spent. For a new entry, enable repeating and choose daily, weekly, every two weeks, monthly, or selected weekdays (Monday through Sunday) through an end date. Custom weekday schedules create entries only on the selected days in the inclusive date range. Matching occurrences are created together when saved. Monthly dates clamp to the last day of shorter months (for example, January 31 → February 28 → March 31). Recurring entries store `isRecurring` and a shared `recurrenceId`. A schedule can create up to 500 entries. Each occurrence remains a regular entry in status views, weekly summaries, search, CSV, and JSON backups; CSV includes a recurring indicator. Deadlines move by the same date offset as each occurrence. Titles are required and limited to 80 characters; details support up to 3,000 characters. Time accepts 0–24 hours in half-hour increments.
 - **Work status:** Use the left Status menu to view all entries or filter by `Create`, `In Progress`, `Complete`, or `Cancel`. Change a status from the list or editor; it is saved with the entry in browser storage. Existing entries and older backups without a status default to `Create`.
 - **Status summary:** Compare all-time status totals with the currently selected month. Select a status card to filter the entry list.
+- **Data visualization:** Review daily workload for the selected month or the latest 12 months, entries by category, and entries by status. Switch between `All entries` and `Exclude recurring` to apply the same scope to dashboard totals, the status summary, and charts. The preference persists in this browser and across language changes. Charts use built-in HTML and CSS without external libraries.
 - **Weekly summary:** Review entries from a Monday-to-Sunday week, including each day's records and status totals. Move between weeks or return to the current week.
 - **Deadlines:** Set an optional deadline separately from the work date. Past deadlines are marked overdue unless the entry is `Complete` or `Cancel`. Older records without a deadline remain valid.
 - **New-day prompt:** After the date changes, on the next visit or while the app remains open, Worklog asks whether to start an entry for today. Confirming opens a new entry with today's date; previous entries stay saved under their dates.
@@ -31,12 +32,12 @@ Open the index.html file in a modern browser. No package installation, build ste
 1. Enter a date, a title, and any optional details, category, and time.
 2. Browse with the month picker, category and status filters, search, and sort menu. Use the weekly summary to review one Monday-to-Sunday period.
 3. Add both Korean and English labels when creating a custom category.
-4. Use Duplicate on a repeated task, adjust the new draft, and save it. Set a deadline when needed.
+4. To create a recurring schedule, open a new entry, enable `Repeat this entry`, choose daily, weekly, every two weeks, monthly, or custom weekdays, select any weekdays when using the custom option, and choose an end date before saving. Matching occurrences are stored as individual entries together. In analytics, switch whether recurring entries are included. Existing entries do not show recurrence controls while being edited.
 5. Export the current filtered list as CSV for spreadsheet analysis. Export a JSON backup regularly; importing merges it with the current browser data.
 
 ## Data and privacy
 
-Worklog is a static client-side app. Entries (including deadlines), categories, category translations, and language preference are stored in the current browser's localStorage. There is no account, server database, or automatic cross-device sync. Clearing browser data can remove records; use JSON export to keep a separate backup.
+Worklog is a static client-side app. Entries (including deadlines and recurrence markers), categories, category translations, language preference, and the analytics filter preference are stored in the current browser's localStorage. Recurring occurrences are independent entries linked by `recurrenceId`. Older entries and backups without recurrence fields are treated as regular entries. There is no account, server database, or automatic cross-device sync. Clearing browser data can remove records; use JSON export to keep a separate backup.
 
 The app does not send journal data to a translation service. DM Sans and Noto Sans KR are requested from Google Fonts when available; system fonts are used as fallbacks.
 
@@ -50,6 +51,8 @@ Worklog/
 ├── script.js        Records, validation, localization, storage, and backups
 ├── README.md        English documentation
 ├── README_KR.md     Korean documentation
+├── tests/
+│   └── validation.test.cjs  Data, backup, recurrence date, and schedule ID tests
 └── LICENSE          MIT License
 </pre>
 
@@ -63,7 +66,13 @@ Worklog/
 
 ## Testing
 
-The project does not currently include a `tests/` directory or an automated test suite. When automated checks are added, `tests/` is the place to keep them. Tests can help verify data validation, status and deadline handling, backup compatibility, and CSV formatting after code changes. The folder is for development checks and is not required to run the app.
+The app has no runtime dependencies. Run the data, backup, and recurrence schedule tests with Node.js from the `outputs/` directory:
+
+<pre>
+node tests/validation.test.cjs
+</pre>
+
+The tests are for development checks and are not required to run the app.
 
 ## Known limitations
 
