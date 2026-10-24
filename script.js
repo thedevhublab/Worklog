@@ -7,7 +7,7 @@
     heroTitle:'업무 기록', heroDescription:'날짜별로 업무를 기록하고 관리하세요.',
     languageControls:'데이터 및 언어', statistics:'업무 통계', searchFilters:'기록 검색과 필터', add:'추가', home:'Worklog 홈', filePicker:'JSON 백업 파일 선택',
     currentMonthEntries:'이번 달 기록', allEntries:'전체 업무일지', loggedDays:'기록한 날짜', workEntries:'업무 기록', newEntry:'새 기록',
-    sortBy:'정렬 기준', filterByCategory:'분류 필터', searchEntries:'기록 검색', searchPlaceholder:'기록 검색...', manageCategories:'분류 관리',
+    sortBy:'정렬 기준', filterByCategory:'분류 필터', searchEntries:'기록 검색', searchPlaceholder:'기록 검색...', manageCategories:'분류 관리', entryView:'일지 표시 범위', entryViewMonth:'월 전체', entryViewDay:'하루 일지', filterByDate:'날짜별 업무일지',
     newWorkEntry:'새 업무 기록', close:'닫기', date:'날짜', title:'업무 제목', titlePlaceholder:'예: 신규 서비스 기획안 작성',
     titleLimit:'최대 80자', details:'업무 내용', detailsPlaceholder:'오늘 진행한 업무와 결과를 기록해보세요.', detailsLimit:'최대 3,000자',
     category:'분류', timeSpent:'소요 시간 (시간)', hoursHint:'0~24시간 · 30분 단위', dateHint:'YYYY-MM-DD', previousMonth:'이전 달', nextMonth:'다음 달', cancel:'취소', saveEntry:'기록 저장',
@@ -40,7 +40,7 @@
     languageControls:'Data and language', statistics:'Work statistics', searchFilters:'Search and filter entries', add:'Add', home:'Worklog home', filePicker:'Choose a JSON backup file',
     heroDescription:'Record and manage your work by date.',
     currentMonthEntries:'This month', allEntries:'All entries', loggedDays:'Days logged', workEntries:'Work journal',
-    newEntry:'New entry', sortBy:'Sort by', filterByCategory:'Filter by category', searchEntries:'Search entries',
+    newEntry:'New entry', sortBy:'Sort by', filterByCategory:'Filter by category', searchEntries:'Search entries', entryView:'Entry view', entryViewMonth:'Whole month', entryViewDay:'One day', filterByDate:'Entries for a date',
     searchPlaceholder:'Search entries...', manageCategories:'Manage categories', newWorkEntry:'New work entry', close:'Close',
     date:'Date', title:'Title', titlePlaceholder:'e.g. Draft a new service proposal', titleLimit:'Up to 80 characters',
     details:'Details', detailsPlaceholder:'Describe what you worked on and the results.', detailsLimit:'Up to 3,000 characters',
@@ -73,7 +73,7 @@
     nextYear:'Next year', englishMissing:'English name not set', selectDate:'Choose a date', selected:'Selected'
   };
   const $ = id => document.getElementById(id);
-  const state = { entries:[], categories:[...DEFAULTS], translations:{}, language:'ko', selectedStatus:'all', weekStart:null, formMode:'new', storageProblem:false, pickerYear:new Date().getFullYear(), calendarDate:new Date(), snapshot:null, focus:null, saving:false, analyticsIncludeRepeats:true };
+  const state = { entries:[], categories:[...DEFAULTS], translations:{}, language:'ko', selectedStatus:'all', listScope:'month', weekStart:null, formMode:'new', storageProblem:false, pickerYear:new Date().getFullYear(), calendarDate:new Date(), snapshot:null, focus:null, saving:false, analyticsIncludeRepeats:true };
   const dict = () => state.language === 'ko' ? KO : EN;
   const t = key => dict()[key] || key;
   const locale = () => state.language === 'ko' ? 'ko-KR' : 'en-US';
@@ -182,7 +182,7 @@
     promptForNewDay=Boolean(validDate(previousActiveDate)&&previousActiveDate<todayISO);
     if(storage)storage.setItem(KEYS.activeDate,todayISO);
   }catch{}
-  $('monthFilter').value=localDate(today).slice(0,7);$('entryDate').value=localDate(today);state.pickerYear=today.getFullYear();
+  $('monthFilter').value=localDate(today).slice(0,7);$('dayFilter').value=localDate(today);$('entryDate').value=localDate(today);state.pickerYear=today.getFullYear();
   let toastTimer;
   const toast=message=>{$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2600);};
   const categoryLabel=name=>state.language==='en'?(state.translations[name]||BUILTIN[name]||name):name;
@@ -290,6 +290,12 @@
   };
   const closeCalendar=restore=>{$('datePopup').hidden=true;$('dateTrigger').setAttribute('aria-expanded','false');if(restore)$('dateTrigger').focus();};
   const updateMonth=()=>{const value=$('monthFilter').value;if(!value){$('monthTrigger').textContent=t('allMonths');state.pickerYear=today.getFullYear();renderMonthGrid();return;}if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(value))return;$('monthTrigger').textContent=monthText(value);state.pickerYear=Number(value.slice(0,4));renderMonthGrid();};
+  const alignDayFilterToMonth=month=>{
+    if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return;
+    const oldDay=validDate($('dayFilter').value)?Number($('dayFilter').value.slice(-2)):1;
+    const [year,monthNumber]=month.split('-').map(Number),lastDay=new Date(year,monthNumber,0).getDate();
+    $('dayFilter').value=month+'-'+String(Math.min(oldDay,lastDay)).padStart(2,'0');
+  };
   const renderCategoryList=()=>{
     $('categoryList').innerHTML=state.categories.length?state.categories.map((name,i)=>{
       const english=state.translations[name]||BUILTIN[name]||'',labelKo=(state.language==='ko'?'한국어 이름: ':'Korean name: ')+name,labelEn=(state.language==='ko'?'영어 이름: ':'English name: ')+(english||t('englishMissing'));
@@ -303,9 +309,14 @@
     document.querySelectorAll('[data-status-count]').forEach(element=>{element.textContent=String(counts[element.dataset.statusCount]||0);});
     document.querySelectorAll('[data-status-view]').forEach(button=>{const active=button.dataset.statusView===state.selectedStatus;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false');});
   };
+  const renderListScope=()=>{
+    document.querySelectorAll('[data-entry-view]').forEach(button=>{const active=button.dataset.entryView===state.listScope;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
+    $('dayFilter').hidden=state.listScope!=='day';
+    document.querySelector('.filters').classList.toggle('daily-view',state.listScope==='day');
+  };
   const filteredEntries=()=>{
-    const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),needle=query.toLocaleLowerCase(locale());
-    const shown=state.entries.filter(row=>(!month||row.date.startsWith(month))&&(state.selectedStatus==='all'||row.status===state.selectedStatus)&&(!category||row.category===category)&&(!needle||(row.title+' '+row.content+' '+row.category+' '+categoryLabel(row.category)).toLocaleLowerCase(locale()).includes(needle)));
+    const month=$('monthFilter').value,day=$('dayFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),needle=query.toLocaleLowerCase(locale());
+    const shown=state.entries.filter(row=>(state.listScope==='day'?row.date===day:(!month||row.date.startsWith(month)))&&(state.selectedStatus==='all'||row.status===state.selectedStatus)&&(!category||row.category===category)&&(!needle||(row.title+' '+row.content+' '+row.category+' '+categoryLabel(row.category)).toLocaleLowerCase(locale()).includes(needle)));
     const collator=new Intl.Collator(state.language==='ko'?'ko':'en',{sensitivity:'base',numeric:true});
     shown.sort((a,b)=>$('sortFilter').value==='old'?a.date.localeCompare(b.date)||a.created-b.created:$('sortFilter').value==='title'?collator.compare(a.title,b.title)||b.date.localeCompare(a.date):b.date.localeCompare(a.date)||b.created-a.created);
     return shown;
@@ -319,16 +330,17 @@
     link.href=url;link.download='Worklog_'+localDate(today)+'.csv';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(t('csvSuccess'));
   };
   const render=()=>{
-    renderStatusMenu();renderCategories();renderStatusSummary();renderAnalytics();renderWeekly();const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),shown=filteredEntries();
+    renderStatusMenu();renderListScope();renderCategories();renderStatusSummary();renderAnalytics();renderWeekly();const month=$('monthFilter').value,category=$('categoryFilter').value,query=$('search').value.trim(),shown=filteredEntries();
     $('resultCount').textContent=shown.length+' '+countEntries(shown.length);
     const statsEntries=analyticsEntries(),monthCount=statsEntries.filter(row=>row.date.startsWith(localDate(today).slice(0,7))).length;
     $('monthCount').innerHTML=monthCount+'<small>'+esc(countEntries(monthCount))+'</small>';
     $('allCount').innerHTML=statsEntries.length+'<small>'+esc(countEntries(statsEntries.length))+'</small>';
     const dayCount=new Set(statsEntries.map(row=>row.date)).size;$('dayCount').innerHTML=dayCount+'<small>'+esc(countDays(dayCount))+'</small>';
     document.querySelector('[data-i18n="currentMonthEntries"]').textContent=t('currentMonthEntries')+' · '+monthText(localDate(today).slice(0,7));
-    const summary=[month?monthText(month):t('allMonths')];if(state.selectedStatus!=='all')summary.push(t('status'+(state.selectedStatus==='inProgress'?'InProgress':state.selectedStatus==='complete'?'Complete':state.selectedStatus==='cancel'?'Cancel':'Create')));if(category)summary.push(categoryLabel(category));if(query)summary.push('“'+query+'”');
-    $('filterSummary').textContent=state.storageProblem?t('storageUnreadable'):((category||query||state.selectedStatus!=='all'||!month)?summary.join(' · '):'');$('filterSummary').classList.toggle('warning-text',state.storageProblem);
-    if(!shown.length){renderEmpty(Boolean(category||query||state.selectedStatus!=='all'));return;}
+    const summary=[state.listScope==='day'?dateText($('dayFilter').value):(month?monthText(month):t('allMonths'))];if(state.selectedStatus!=='all')summary.push(t('status'+(state.selectedStatus==='inProgress'?'InProgress':state.selectedStatus==='complete'?'Complete':state.selectedStatus==='cancel'?'Cancel':'Create')));if(category)summary.push(categoryLabel(category));if(query)summary.push('“'+query+'”');
+    const listFiltered=state.listScope==='day'||category||query||state.selectedStatus!=='all'||!month;
+    $('filterSummary').textContent=state.storageProblem?t('storageUnreadable'):(listFiltered?summary.join(' · '):'');$('filterSummary').classList.toggle('warning-text',state.storageProblem);
+    if(!shown.length){renderEmpty(Boolean(listFiltered));return;}
     $('entries').innerHTML=shown.map(row=>{
       const p=row.date.split('-'),day=Number(p[2]),d=new Date(Number(p[0]),Number(p[1])-1,day);
       const statusOptions=statusItems.map(([value,key])=>'<option value="'+value+'"'+(row.status===value?' selected':'')+'>'+esc(t(key))+'</option>').join('');
@@ -454,7 +466,7 @@
     $('languageBtn').textContent=state.language==='ko'?'EN':'한국어';$('languageBtn').setAttribute('aria-label',state.language==='ko'?'Switch to English':'한국어로 전환');
     $('exportBtn').textContent=state.language==='ko'?'↓ 백업':'↓ Export';$('importBtn').textContent=state.language==='ko'?'↑ 복원':'↑ Import';
     const sort=$('sortFilter').value;$('sortFilter').innerHTML='<option value="new">'+esc(t('newest'))+'</option><option value="old">'+esc(t('oldest'))+'</option><option value="title">'+esc(t('titleAZ'))+'</option>';$('sortFilter').value=sort;
-    $('todayText').textContent=today.toLocaleDateString(locale(),{year:'numeric',month:'long',day:'numeric',weekday:'long'});$('todayText').dateTime=localDate(today);
+    $('todayText').textContent=today.toLocaleDateString(locale(),{year:'numeric',month:'long',day:'numeric',weekday:'long'});$('todayText').dateTime=localDate(today);$('dayFilter').lang=state.language;
     $('monthTrigger').setAttribute('aria-label',t('selectMonth'));$('monthPopup').setAttribute('aria-label',t('selectMonth'));
     $('dateHint').textContent=t('dateHint');$('entryDate').placeholder=state.language==='ko'?'YYYY-MM-DD':'YYYY-MM-DD';
     $('dateTrigger').setAttribute('aria-label',t('selectDate'));$('datePopup').setAttribute('aria-label',t('selectDate'));
@@ -508,7 +520,7 @@
     const row=state.entries.find(item=>item.id===select.dataset.entryStatus);if(!row)return;
     try{persist({entries:state.entries.map(item=>item.id===row.id?{...item,status:select.value}:item),categories:[...state.categories],translations:{...state.translations}});render();toast(t('statusUpdated'));}catch{select.value=row.status;toast(t('saveFailed'));}
   });
-  $('statusMenu').addEventListener('click',event=>{const button=event.target.closest('[data-status-view]');if(!button)return;state.selectedStatus=button.dataset.statusView;$('monthFilter').value='';updateMonth();render();});
+  $('statusMenu').addEventListener('click',event=>{const button=event.target.closest('[data-status-view]');if(!button)return;state.selectedStatus=button.dataset.statusView;state.listScope='month';$('monthFilter').value='';updateMonth();render();});
   $('statusSummary').addEventListener('click',event=>{const button=event.target.closest('[data-summary-status]');if(!button)return;state.selectedStatus=button.dataset.summaryStatus;render();$('entriesHeading').scrollIntoView({behavior:'smooth',block:'start'});});
   $('analyticsFilter').addEventListener('click',event=>{
     const button=event.target.closest('[data-analytics-repeats]');if(!button)return;
@@ -542,11 +554,13 @@
   });
   $('entryDate').addEventListener('input',()=>{if(validDate($('entryDate').value)){const p=$('entryDate').value.split('-').map(Number);state.calendarDate=new Date(p[0],p[1]-1,1);renderCalendar();}});
   $('entryDate').addEventListener('blur',()=>{if($('entryDate').value)renderCalendar();});
-  $('monthGrid').addEventListener('click',event=>{const button=event.target.closest('[data-month]');if(!button)return;$('monthFilter').value=button.dataset.month;updateMonth();$('monthPopup').hidden=true;$('monthTrigger').setAttribute('aria-expanded','false');$('monthTrigger').focus();render();});
+  $('monthGrid').addEventListener('click',event=>{const button=event.target.closest('[data-month]');if(!button)return;$('monthFilter').value=button.dataset.month;if(state.listScope==='day')alignDayFilterToMonth(button.dataset.month);updateMonth();$('monthPopup').hidden=true;$('monthTrigger').setAttribute('aria-expanded','false');$('monthTrigger').focus();render();});
   document.addEventListener('click',event=>{
     if(!event.target.closest('.month-picker')){$('monthPopup').hidden=true;$('monthTrigger').setAttribute('aria-expanded','false');}
     if(!event.target.closest('.date-picker'))closeCalendar(false);
   });
+  $('listScopeFilter').addEventListener('click',event=>{const button=event.target.closest('[data-entry-view]');if(!button)return;state.listScope=button.dataset.entryView;if(state.listScope==='day'){const month=$('monthFilter').value;if(month&&$('dayFilter').value.slice(0,7)!==month)alignDayFilterToMonth(month);}render();if(state.listScope==='day')$('dayFilter').focus();});
+  $('dayFilter').addEventListener('change',()=>{const value=$('dayFilter').value;if(!validDate(value))return;$('monthFilter').value=value.slice(0,7);updateMonth();render();});
   ['sortFilter','categoryFilter'].forEach(id=>$(id).addEventListener('change',render));$('search').addEventListener('input',render);
   $('languageBtn').addEventListener('click',()=>{state.language=state.language==='ko'?'en':'ko';try{storage.setItem(KEYS.language,state.language);}catch{}applyLanguage();});
   $('exportBtn').addEventListener('click',exportBackup);$('importBtn').addEventListener('click',()=>$('fileInput').click());$('fileInput').addEventListener('change',event=>importFile(event.target.files&&event.target.files[0]));

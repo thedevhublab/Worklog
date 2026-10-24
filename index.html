@@ -142,6 +142,12 @@
                   <div class="month-grid" id="monthGrid"></div>
                 </div>
               </div>
+              <div class="entry-view-toggle" id="listScopeFilter" role="group" aria-label="일지 표시 범위" data-i18n-aria="entryView">
+                <button class="entry-view-button active" type="button" data-entry-view="month" aria-pressed="true" data-i18n="entryViewMonth">월 전체</button>
+                <button class="entry-view-button" type="button" data-entry-view="day" aria-pressed="false" data-i18n="entryViewDay">하루 일지</button>
+              </div>
+              <label class="visually-hidden" for="dayFilter" data-i18n="filterByDate">날짜별 업무일지</label>
+              <input class="field day-filter" id="dayFilter" type="date" aria-label="날짜별 업무일지" data-i18n-aria="filterByDate" hidden>
               <label class="visually-hidden" for="sortFilter" data-i18n="sortBy">정렬 기준</label>
               <select class="field" id="sortFilter">
                 <option value="new">최신순</option>
